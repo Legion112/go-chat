@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/net/websocket"
@@ -10,8 +11,10 @@ import (
 )
 
 type Message struct {
-	Text string
-	UserName string
+	Id	int
+	Date	int
+	Text     string
+	Username string
 }
 
 // This example demonstrates a trivial echo server.
@@ -20,6 +23,33 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	rows, err := db.Query("SELECT id, username, text, date FROM message ORDER BY id DESC LIMIT 5")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	var messages = make(map[int]Message);
+	for rows.Next() {
+		var message = Message{};
+
+		if err := rows.Scan(&message.Id, &message.Username, &message.Text, &message.Date);
+		err != nil {
+			panic(err)
+		}
+		messages[message.Id] = message
+	}
+
+	//if !rows.NextResultSet() {
+	//	panic( rows.Err())
+	//}
+	var jsonString []byte;
+	jsonString, err = json.Marshal(messages)
+	if err != nil {
+		panic(err)
+	}
+	print(string(jsonString));
+	return;
 
 	http.Handle("/echo", websocket.Handler(func(ws *websocket.Conn) {
 		var message Message
@@ -33,14 +63,14 @@ func main() {
 			panic(err)
 		}
 
-		effected, err := stmtIns.Exec(time.Now().Unix(), message.UserName, message.Text)
+		effected, err := stmtIns.Exec(time.Now().Unix(), message.Username, message.Text)
 		fmt.Println(effected)
 		if err != nil {
 			panic(err)
 		}
 
-		websocket.Message.Send(ws, "Success")
-		fmt.Println("Message from client " + message.Text + " " + message.UserName)
+		websocket.Message.Send(ws, "sddsf");
+		fmt.Println("Message from client " + message.Text + " " + message.Username)
 	}))
 
 

@@ -45,16 +45,22 @@
 
 <script>
 import HelloWorld from './components/HelloWorld';
+import SocketService from "./services/SocketService";
 
 export default {
   name: 'App',
-
   components: {
     HelloWorld,
   },
-
   data: () => ({
     //
   }),
+  created() {
+    const socket = new WebSocket('ws://localhost:12345/echo')
+    SocketService.init(socket)
+    socket.addEventListener('message', event => {
+      this.$store.dispatch('setMessages', event.data)
+    })
+  }
 };
 </script>

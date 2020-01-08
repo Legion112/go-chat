@@ -13,39 +13,48 @@
         ></v-img>
       </v-flex>
 
-      <v-flex mb-4>
+      <v-flex xs12>
         <h1 class="display-2 font-weight-bold mb-3">
           Welcome to our beautiful "Go chat"
         </h1>
       </v-flex>
-      <v-card>
+      <v-flex xs2>
         <v-row align="center">
           <v-form>
             <v-text-field
                     ref="form"
-                    v-model="name"
+                    v-model="username"
                     label="Name"
                     required
             ></v-text-field>
             <v-btn
                     color="success"
                     class="mr-4"
-                    @click="validate"
+                    @click="setUsername"
             >
               Set username
             </v-btn>
           </v-form>
         </v-row>
-      </v-card>
-
+      </v-flex>
+      <v-flex xs6>
+        <v-card width="600">
+          <ChatArea></ChatArea>
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+import ChatArea from "./ChatArea";
+
 export default {
   name: 'HelloWorld',
-
+  components: {
+    ChatArea
+  },
   data: () => ({
     username: null,
     ecosystem: [
@@ -100,7 +109,12 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions({
+      storeUsername: 'setUsername'
+    }),
     setUsername(){
+
+      this.storeUsername(this.username);
     }
   }
 };
